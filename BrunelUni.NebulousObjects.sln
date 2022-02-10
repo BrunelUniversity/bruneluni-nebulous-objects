@@ -1,8 +1,34 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrunelUni.NebulousObjects.Web", "BrunelUni.NebulousObjects.Web\BrunelUni.NebulousObjects.Web.csproj", "{54CEC89F-D0F1-4FD0-8C6D-BDFCAAECCCF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrunelUni.NebulousObjects.Core", "BrunelUni.NebulousObjects.Core\BrunelUni.NebulousObjects.Core.csproj", "{FE18CE21-B9FB-445B-A056-6C2003BCA1A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrunelUni.NebulousObjects.Tests", "BrunelUni.NebulousObjects.Tests\BrunelUni.NebulousObjects.Tests.csproj", "{F27EB4A1-6569-454C-BDA3-B2E2D7F6FFE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrunelUni.NebulousObjects.Collections", "BrunelUni.NebulousObjects.Collections\BrunelUni.NebulousObjects.Collections.csproj", "{FCF6B42C-D656-49B8-97ED-50AE499870E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54CEC89F-D0F1-4FD0-8C6D-BDFCAAECCCF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54CEC89F-D0F1-4FD0-8C6D-BDFCAAECCCF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54CEC89F-D0F1-4FD0-8C6D-BDFCAAECCCF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54CEC89F-D0F1-4FD0-8C6D-BDFCAAECCCF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE18CE21-B9FB-445B-A056-6C2003BCA1A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE18CE21-B9FB-445B-A056-6C2003BCA1A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE18CE21-B9FB-445B-A056-6C2003BCA1A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE18CE21-B9FB-445B-A056-6C2003BCA1A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F27EB4A1-6569-454C-BDA3-B2E2D7F6FFE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F27EB4A1-6569-454C-BDA3-B2E2D7F6FFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F27EB4A1-6569-454C-BDA3-B2E2D7F6FFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F27EB4A1-6569-454C-BDA3-B2E2D7F6FFE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCF6B42C-D656-49B8-97ED-50AE499870E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCF6B42C-D656-49B8-97ED-50AE499870E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCF6B42C-D656-49B8-97ED-50AE499870E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCF6B42C-D656-49B8-97ED-50AE499870E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
