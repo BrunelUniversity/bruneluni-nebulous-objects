@@ -13,10 +13,6 @@ public class PersonService
     public Person GetPersonById( Guid id ) => _nebulousPeople
         .FirstOrDefault( x => x.Id == id );
 
-    public void UpdatePerson( Person person )
-    {
-        var personInCollection = _nebulousPeople
-            .Where( x => x.Id == person.Id ).First();
-        personInCollection = person;
-    }
+    public void UpdatePerson( Person person ) =>
+        _nebulousPeople.ReplaceFirstOccurance( x => x.Id == person.Id, person );
 }

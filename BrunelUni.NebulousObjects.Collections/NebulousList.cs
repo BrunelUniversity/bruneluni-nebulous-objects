@@ -28,9 +28,29 @@ public class NebulousList<T> : INebulousList<T> where T : BaseNebulousObject
         return items.GetEnumerator( );
     }
 
+    public void ReplaceFirstOccurance( Func<T, bool> predicate, T replacement )
+    {
+        try
+        {
+
+            _nebulousManager.EnterExclusiveLock<T>( replacement.Id );
+            var first = _list.FirstOrDefault( predicate );
+            var index = _list.IndexOf( first );
+            if( first.Id != replacement.Id ) throw new ArgumentException( "id of replacement does not match selected" );
+            _list[ index ] = replacement;
+        }
+        finally
+        {
+            _nebulousManager.ExitExclusiveLock<T>( replacement.Id );
+        }
+    }
+
     IEnumerator IEnumerable.GetEnumerator( ) => GetEnumerator( );
 
-    public void Add( T item ) => _list.Add( item );
+    public void Add( T item )
+    {
+        _list.Add( item );
+    }
 
     public void Clear( ) { throw new NotImplementedException( ); }
 
