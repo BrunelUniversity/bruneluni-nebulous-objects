@@ -5,15 +5,15 @@ using NSubstitute;
 
 namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 
-public class Given_A_NebulousList_Is_Injected : GivenWhenThen<INebulousList<Person>>
+public abstract class Given_A_NebulousList : GivenWhenThen<NebulousList<Person>>
 {
-    protected PersonService PersonService;
     protected INebulousManager MockNebulousManager;
 
     protected override void Given( )
     {
         MockNebulousManager = Substitute.For<INebulousManager>( );
-        SUT = new NebulousList<Person>( MockNebulousManager );
-        PersonService = new PersonService( SUT );
+        SUT = new NebulousList<Person>( MockNebulousManager, StartingItems );
     }
+
+    protected abstract Person[] StartingItems { get; }
 }

@@ -5,14 +5,26 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 public interface INebulousManager
 {
     /// <returns>success if item exists, failure if the item cannot be found</returns>
-    Result EnterExclusiveLock<TItem>( Guid id );
+    Result EnterListSharedLock<TItem>( );
 
     /// <returns>success if item exists, failure if the item cannot be found</returns>
-    Result ExitExclusiveLock<TItem>( Guid id );
+    Result ExitListSharedLock<TItem>( );
 
     /// <returns>success if item exists, failure if the item cannot be found</returns>
-    Result EnterSharedLock<TItem>( Guid id );
+    Result EnterListExclusiveLock<TItem>( );
 
     /// <returns>success if item exists, failure if the item cannot be found</returns>
-    Result ExitSharedLock<TItem>( Guid id );
+    Result ExitListExclusiveLock<TItem>( );
+    
+    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    Result EnterItemExclusiveLock<TItem>( int index );
+
+    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    Result ExitItemExclusiveLock<TItem>( int index );
+
+    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    Result EnterItemSharedLock<TItem>( int index );
+
+    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    Result ExitItemSharedLock<TItem>( int index );
 }

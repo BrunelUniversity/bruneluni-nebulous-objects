@@ -10,4 +10,8 @@
       <ProjectReference Include="..\BrunelUni.NebulousObjects.Core\BrunelUni.NebulousObjects.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
+    </ItemGroup>
+
 </Project>
