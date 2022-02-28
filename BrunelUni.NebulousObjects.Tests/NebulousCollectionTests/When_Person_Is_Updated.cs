@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 
-public class When_Person_Is_Searched_And_First_Occurance_Is_Replaced : Given_A_NebulousList
+public class When_Person_Is_Updated : Given_A_NebulousList
 {
     protected override Person [ ] StartingItems { get; } =
     {

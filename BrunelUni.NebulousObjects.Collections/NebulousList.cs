@@ -52,7 +52,9 @@ public class NebulousList<T> : INebulousList<T>
 
     public void Add( T item )
     {
+        _nebulousManager.EnterListExclusiveLock<T>( );
         _list.Add( item );
+        _nebulousManager.ExitListExclusiveLock<T>( );
     }
     
     public void Clear( ) { throw new NotImplementedException( ); }
@@ -61,7 +63,19 @@ public class NebulousList<T> : INebulousList<T>
 
     public void CopyTo( T [ ] array, int arrayIndex ) { throw new NotImplementedException( ); }
 
-    public bool Remove( T item ) { throw new NotImplementedException( ); }
+    public bool Remove( T item )
+    {
+        try
+        {
+            var index = IndexOf( item );
+            RemoveAt( index );
+            return true;
+        }
+        catch( Exception )
+        {
+            return false;
+        }
+    }
 
     public int Count => _list.Count;
     public bool IsReadOnly { get; }
@@ -86,7 +100,12 @@ public class NebulousList<T> : INebulousList<T>
 
     public void Insert( int index, T item ) { throw new NotImplementedException( ); }
 
-    public void RemoveAt( int index ) { throw new NotImplementedException( ); }
+    public void RemoveAt( int index )
+    {
+        _nebulousManager.EnterListExclusiveLock<T>( );
+        _list.RemoveAt( index );
+        _nebulousManager.ExitListExclusiveLock<T>( );
+    }
 
     public T this[ int index ]
     {
