@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BrunelUni.NebulousObjects.Core\BrunelUni.NebulousObjects.Core.csproj" />
+    </ItemGroup>
+
 </Project>

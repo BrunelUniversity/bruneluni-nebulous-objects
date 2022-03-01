@@ -1,30 +1,36 @@
-﻿using Aidan.Common.Core;
+﻿using System.ComponentModel;
+using Aidan.Common.Core;
+using BrunelUni.NebulousObjects.Core.Dtos;
 
 namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 public interface INebulousManager
 {
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result EnterListSharedLock<TItem>( );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result ExitListSharedLock<TItem>( );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result EnterListExclusiveLock<TItem>( );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result ExitListExclusiveLock<TItem>( );
     
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result EnterItemExclusiveLock<TItem>( int index );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result ExitItemExclusiveLock<TItem>( int index );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result EnterItemSharedLock<TItem>( int index );
 
-    /// <returns>success if item exists, failure if the item cannot be found</returns>
+    [ Description( "success if exists, failure if not found" ) ]
     Result ExitItemSharedLock<TItem>( int index );
+
+    event Action<OperationDto> OperationAvailable;
+    
+    void ReplicateChanges<T>( OperationDto operationDto, INebulousList<T> list );
 }

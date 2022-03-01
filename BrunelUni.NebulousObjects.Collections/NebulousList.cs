@@ -11,6 +11,7 @@ public class NebulousList<T> : INebulousList<T>
     public NebulousList( INebulousManager nebulousManager, params T[] items )
     {
         _nebulousManager = nebulousManager;
+        _nebulousManager.OperationAvailable += x => _nebulousManager.ReplicateChanges( x, this );
         _list = new SynchronizedCollection<T>( );
         foreach( var item in items )
         {
