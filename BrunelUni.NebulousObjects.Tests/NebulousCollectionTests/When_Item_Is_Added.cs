@@ -1,4 +1,7 @@
 ﻿using System.Linq;
+using BrunelUni.NebulousObjects.Collections;
+using BrunelUni.NebulousObjects.Core.Dtos;
+using BrunelUni.NebulousObjects.Core.Enums;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -9,7 +12,7 @@ public class When_Item_Is_Added : Given_A_NebulousList
     private string _addedName;
     private Person _person;
 
-    protected override Person [ ] StartingItems => new []
+    protected override Person [ ] StartingItems => new [ ]
     {
         new Person
         {
@@ -36,18 +39,14 @@ public class When_Item_Is_Added : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousManager.EnterListExclusiveLock<Person>( );
-            MockNebulousManager.Create( _person );
-            MockNebulousManager.ExitListExclusiveLock<Person>( );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveListLock ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.Create && o.Data.NebulousEquals( _person ) ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveListLock ) );
         } );
-        MockNebulousManager.Received( 1 ).Create( Arg.Any<Person>( ) );
-        MockNebulousManager.Received( 1 ).EnterListExclusiveLock<object>( );
-        MockNebulousManager.Received( 1 ).ExitListExclusiveLock<object>( );
+        MockNebulousClient.Received( 3 ).Send( Arg.Any<OperationDto>( ) );
     }
-    
+
     [ Test ]
-    public void Then_Item_Was_Added( )
-    {
-        Assert.DoesNotThrow( ( ) => _ = SUT.First( x => x.Name == _addedName ) );
-    }
+    public void Then_Item_Was_Added( ) { Assert.DoesNotThrow( ( ) => _ = SUT.First( x => x.Name == _addedName ) ); }
 }

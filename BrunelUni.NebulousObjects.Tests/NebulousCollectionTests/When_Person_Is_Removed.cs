@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using BrunelUni.NebulousObjects.Core.Dtos;
+using BrunelUni.NebulousObjects.Core.Enums;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -8,8 +10,8 @@ namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 public class When_Person_Is_Removed : Given_A_NebulousList
 {
     private const string RemovedName = "Aidan";
+    private readonly Guid _id = Guid.NewGuid( );
     private bool _removeResult;
-    private readonly Guid _id = Guid.NewGuid(  );
 
     protected override Person [ ] StartingItems => new [ ]
     {
@@ -32,21 +34,20 @@ public class When_Person_Is_Removed : Given_A_NebulousList
             Name = RemovedName
         } );
     }
-    
+
     [ Test ]
     public void Then_Exclusive_List_Lock_Is_Aquired( )
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousManager.EnterListExclusiveLock<Person>( );
-            MockNebulousManager.Delete<Person>( 0 );
-            MockNebulousManager.ExitListExclusiveLock<Person>( );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveListLock ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.Delete && o.Index == 0 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveListLock ) );
         } );
-        MockNebulousManager.Received( 1 ).Delete<Person>( Arg.Any<int>( ) );
-        MockNebulousManager.Received( 1 ).EnterListExclusiveLock<object>( );
-        MockNebulousManager.Received( 1 ).ExitListExclusiveLock<object>( );
+        MockNebulousClient.Received( 7 ).Send( Arg.Any<OperationDto>( ) );
     }
-    
+
     [ Test ]
     public void Then_Item_Was_Removed( )
     {

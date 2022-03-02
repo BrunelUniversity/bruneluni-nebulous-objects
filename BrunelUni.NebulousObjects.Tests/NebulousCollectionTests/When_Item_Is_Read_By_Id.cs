@@ -1,32 +1,36 @@
 ﻿using System;
 using System.Linq;
+using BrunelUni.NebulousObjects.Core.Dtos;
+using BrunelUni.NebulousObjects.Core.Enums;
 using NSubstitute;
 using NUnit.Framework;
 
 namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
-[ TestFixture(0, "Frank") ]
-[ TestFixture(1, "Ann") ]
-[ TestFixture(2, "Joe") ]
+
+[ TestFixture( 0, "Frank" ) ]
+[ TestFixture( 1, "Ann" ) ]
+[ TestFixture( 2, "Joe" ) ]
 public class When_Item_Is_Read_By_Id : Given_A_NebulousList
 {
     private readonly int _personIndex;
     private readonly string _expectedPerson;
+
     protected override Person [ ] StartingItems { get; } =
     {
-        new()
+        new( )
         {
             Name = "Frank"
         },
-        new()
+        new( )
         {
             Name = "Ann"
         },
-        new()
+        new( )
         {
             Name = "Joe"
         }
     };
-    
+
     public When_Item_Is_Read_By_Id( int personIndex, string expectedPerson )
     {
         _personIndex = personIndex;
@@ -44,10 +48,7 @@ public class When_Item_Is_Read_By_Id : Given_A_NebulousList
     }
 
     [ Test ]
-    public void Then_Correct_Person_Was_Recieved( )
-    {
-        Assert.AreEqual( _expectedPerson, _person.Name );
-    }
+    public void Then_Correct_Person_Was_Recieved( ) { Assert.AreEqual( _expectedPerson, _person.Name ); }
 
     [ Test ]
     public void Then_Recieved_Person_Is_A_Clone_Of_The_Original_Object( )
@@ -60,10 +61,19 @@ public class When_Item_Is_Read_By_Id : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousManager.EnterItemSharedLock<Person>( _personIndex );
-            MockNebulousManager.ExitItemSharedLock<Person>( _personIndex );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterSharedLock && o.Index == 0 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitSharedLock && o.Index == 0 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterSharedLock && o.Index == 1 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitSharedLock && o.Index == 1 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterSharedLock && o.Index == 2 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitSharedLock && o.Index == 2 ) );
         } );
-        MockNebulousManager.Received( 3 ).EnterItemSharedLock<object>( Arg.Any<int>( ) );
-        MockNebulousManager.Received( 3 ).ExitItemSharedLock<object>( Arg.Any<int>( ) );
+        MockNebulousClient.Received( 6 ).Send( Arg.Any<OperationDto>( ) );
     }
 }

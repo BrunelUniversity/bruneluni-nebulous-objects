@@ -1,4 +1,6 @@
-﻿using NSubstitute;
+﻿using BrunelUni.NebulousObjects.Core.Dtos;
+using BrunelUni.NebulousObjects.Core.Enums;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
@@ -9,22 +11,16 @@ public class When_List_Is_Indexed : Given_A_NebulousList
 
     protected override Person [ ] StartingItems { get; } =
     {
-        new()
+        new( )
         {
             Name = "James"
         }
     };
 
-    protected override void When( )
-    {
-        _person = SUT[ 0 ];
-    }
-    
+    protected override void When( ) { _person = SUT[ 0 ]; }
+
     [ Test ]
-    public void Then_Correct_Person_Was_Recieved( )
-    {
-        Assert.AreEqual( StartingItems[ 0 ].Name, _person.Name );
-    }
+    public void Then_Correct_Person_Was_Recieved( ) { Assert.AreEqual( StartingItems[ 0 ].Name, _person.Name ); }
 
     [ Test ]
     public void Then_Recieved_Person_Is_A_Clone_Of_The_Original_Object( )
@@ -37,10 +33,11 @@ public class When_List_Is_Indexed : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousManager.EnterItemSharedLock<Person>( 0 );
-            MockNebulousManager.ExitItemSharedLock<Person>( 0 );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterSharedLock && o.Index == 0 ) );
+            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitSharedLock && o.Index == 0 ) );
         } );
-        MockNebulousManager.Received( 1 ).EnterItemSharedLock<object>( Arg.Any<int>( ) );
-        MockNebulousManager.Received( 1 ).ExitItemSharedLock<object>( Arg.Any<int>( ) );
+        MockNebulousClient.Received( 2 ).Send( Arg.Any<OperationDto>( ) );
     }
 }

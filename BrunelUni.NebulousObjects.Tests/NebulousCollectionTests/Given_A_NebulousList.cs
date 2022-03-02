@@ -7,13 +7,13 @@ namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 
 public abstract class Given_A_NebulousList : GivenWhenThen<NebulousList<Person>>
 {
-    protected INebulousManager MockNebulousManager;
+    protected INebulousClient MockNebulousClient;
+
+    protected abstract Person [ ] StartingItems { get; }
 
     protected override void Given( )
     {
-        MockNebulousManager = Substitute.For<INebulousManager>( );
-        SUT = new NebulousList<Person>( MockNebulousManager, StartingItems );
+        MockNebulousClient = Substitute.For<INebulousClient>( );
+        SUT = new NebulousList<Person>( MockNebulousClient, StartingItems );
     }
-
-    protected abstract Person[] StartingItems { get; }
 }

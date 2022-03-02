@@ -6,4 +6,5 @@ public interface INebulousClient
 {
     event Action<OperationDto> MessageAvailable;
     void Send( OperationDto operationDto );
+    void Ack( );
 }
