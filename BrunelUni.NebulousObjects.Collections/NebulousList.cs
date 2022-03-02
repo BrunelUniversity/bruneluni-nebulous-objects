@@ -1,36 +1,43 @@
 ﻿using System.Collections;
+using Aidan.Common.Core.Attributes;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
 using BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 namespace BrunelUni.NebulousObjects.Collections;
 
+[ ThreadSafe ]
 public class NebulousList<T> : INebulousList<T> where T : class
 {
     private readonly SynchronizedCollection<T> _list;
     private readonly INebulousClient _nebulousClient;
+    private readonly object _nessMonster;
 
     public NebulousList( INebulousClient nebulousClient, params T [ ] items )
     {
         _nebulousClient = nebulousClient;
+        _nessMonster = new object( );
         _nebulousClient.MessageAvailable += dto =>
         {
-            switch( dto.Operation )
+            lock( _nessMonster )
             {
-                case OperationEnum.Create:
-                    _list.Add( dto.Data as T );
-                    _nebulousClient.Ack( );
-                    break;
-                case OperationEnum.Delete:
-                    _list.RemoveAt( dto.Index );
-                    _nebulousClient.Ack( );
-                    break;
-                case OperationEnum.Update:
-                    _list[ dto.Index ] = ( dto.Data as T ).Clone( );
-                    _nebulousClient.Ack( );
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException( $"{dto.Operation} is an illegal operation here" );
+                switch( dto.Operation )
+                {
+                    case OperationEnum.Create:
+                        _list.Add( dto.Data as T );
+                        _nebulousClient.Ack( );
+                        break;
+                    case OperationEnum.Delete:
+                        _list.RemoveAt( dto.Index );
+                        _nebulousClient.Ack( );
+                        break;
+                    case OperationEnum.Update:
+                        _list[ dto.Index ] = ( dto.Data as T ).Clone( );
+                        _nebulousClient.Ack( );
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException( $"{dto.Operation} is an illegal operation here" );
+                }
             }
         };
         _list = new SynchronizedCollection<T>( );
@@ -44,18 +51,21 @@ public class NebulousList<T> : INebulousList<T> where T : class
         var items = new List<T>( );
         for( var index = 0; index < _list.Count; index++ )
         {
-            var item = _list[ index ];
-            _nebulousClient.Send( new OperationDto
+            lock( _nessMonster )
             {
-                Index = index,
-                Operation = OperationEnum.EnterSharedLock
-            } );
-            items.Add( item.Clone( ) );
-            _nebulousClient.Send( new OperationDto
-            {
-                Index = index,
-                Operation = OperationEnum.ExitSharedLock
-            } );
+                var item = _list[ index ];
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.EnterSharedLock
+                } );
+                items.Add( item.Clone( ) );
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.ExitSharedLock
+                } );
+            }
         }
 
         return items.GetEnumerator( );
@@ -65,50 +75,100 @@ public class NebulousList<T> : INebulousList<T> where T : class
     {
         var first = this.FirstOrDefault( predicate );
         var index = IndexOf( first );
-        try
+        lock( _nessMonster )
         {
-            _nebulousClient.Send( new OperationDto
+            try
             {
-                Index = index,
-                Operation = OperationEnum.EnterExclusiveLock
-            } );
-            _nebulousClient.Send( new OperationDto
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.EnterExclusiveLock
+                } );
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.Update,
+                    Data = replacement
+                } );
+                _list[ index ] = replacement;
+            }
+            finally
             {
-                Index = index,
-                Operation = OperationEnum.Update,
-                Data = replacement
-            } );
-            _list[ index ] = replacement;
-        }
-        finally
-        {
-            _nebulousClient.Send( new OperationDto
-            {
-                Index = index,
-                Operation = OperationEnum.ExitExclusiveLock
-            } );
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.ExitExclusiveLock
+                } );
+            }
         }
     }
-
-    IEnumerator IEnumerable.GetEnumerator( ) => GetEnumerator( );
 
     public void Add( T item )
     {
-        _nebulousClient.Send( new OperationDto
+        lock( _nessMonster )
         {
-            Operation = OperationEnum.EnterExclusiveListLock
-        } );
-        _nebulousClient.Send( new OperationDto
-        {
-            Operation = OperationEnum.Create,
-            Data = item
-        } );
-        _list.Add( item );
-        _nebulousClient.Send( new OperationDto
-        {
-            Operation = OperationEnum.ExitExclusiveListLock
-        } );
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.EnterExclusiveListLock
+            } );
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.Create,
+                Data = item
+            } );
+            _list.Add( item );
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.ExitExclusiveListLock
+            } );
+        }
     }
+
+    public void RemoveAt( int index )
+    {
+        lock( _nessMonster )
+        {
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.EnterExclusiveListLock
+            } );
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.Delete,
+                Index = index
+            } );
+            _list.RemoveAt( index );
+            _nebulousClient.Send( new OperationDto
+            {
+                Operation = OperationEnum.ExitExclusiveListLock
+            } );
+        }
+    }
+
+    public T this[ int index ]
+    {
+        get
+        {
+            lock( _nessMonster )
+            {
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.EnterSharedLock
+                } );
+                var item = _list[ index ].Clone( );
+                _nebulousClient.Send( new OperationDto
+                {
+                    Index = index,
+                    Operation = OperationEnum.ExitSharedLock
+                } );
+                return item;
+            }
+        }
+        set => throw new NotImplementedException( );
+    }
+
+    IEnumerator IEnumerable.GetEnumerator( ) { return GetEnumerator( ); }
 
     public void Clear( ) { throw new NotImplementedException( ); }
 
@@ -128,16 +188,17 @@ public class NebulousList<T> : INebulousList<T> where T : class
     }
 
     public int Count => _list.Count;
+
     public bool IsReadOnly { get; }
 
     public int IndexOf( T item )
     {
-        using( IEnumerator<T> enumerator = GetEnumerator( ) )
+        using( var enumerator = GetEnumerator( ) )
         {
             var index = 0;
             while( enumerator.MoveNext( ) )
             {
-                if( enumerator.Current.NebulousEquals( item ) ) { return index; }
+                if( enumerator.Current.NebulousEquals( item ) ) return index;
 
                 index++;
             }
@@ -147,42 +208,4 @@ public class NebulousList<T> : INebulousList<T> where T : class
     }
 
     public void Insert( int index, T item ) { throw new NotImplementedException( ); }
-
-    public void RemoveAt( int index )
-    {
-        _nebulousClient.Send( new OperationDto
-        {
-            Operation = OperationEnum.EnterExclusiveListLock
-        } );
-        _nebulousClient.Send( new OperationDto
-        {
-            Operation = OperationEnum.Delete,
-            Index = index
-        } );
-        _list.RemoveAt( index );
-        _nebulousClient.Send( new OperationDto
-        {
-            Operation = OperationEnum.ExitExclusiveListLock
-        } );
-    }
-
-    public T this[ int index ]
-    {
-        get
-        {
-            _nebulousClient.Send( new OperationDto
-            {
-                Index = index,
-                Operation = OperationEnum.EnterSharedLock
-            } );
-            var item = _list[ index ].Clone( );
-            _nebulousClient.Send( new OperationDto
-            {
-                Index = index,
-                Operation = OperationEnum.ExitSharedLock
-            } );
-            return item;
-        }
-        set => throw new NotImplementedException( );
-    }
 }

@@ -6,12 +6,11 @@ public enum OperationEnum
     Update,
     Delete,
     EnterExclusiveListLock,
-    EnterSharedListLock,
     EnterExclusiveLock,
     EnterSharedLock,
     ExitExclusiveListLock,
-    ExitSharedListLock,
     ExitExclusiveLock,
     ExitSharedLock,
-    Ack
+    Ack,
+    ReplicAck
 }

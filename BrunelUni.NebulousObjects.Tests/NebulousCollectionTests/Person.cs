@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 
@@ -6,5 +7,6 @@ namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 public class Person
 {
     public Guid Id { get; set; } = Guid.NewGuid( );
-    public string Name { get; set; }
+
+    [ MaxLength( 15 ) ] public string Name { get; set; }
 }
