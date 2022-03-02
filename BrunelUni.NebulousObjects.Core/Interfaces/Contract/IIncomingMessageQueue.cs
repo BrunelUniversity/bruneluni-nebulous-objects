@@ -1,6 +1,5 @@
 ﻿using Aidan.Common.Core.Attributes;
 using Aidan.Common.Core.Enum;
-using BrunelUni.NebulousObjects.Core.Dtos;
 
 namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
@@ -9,5 +8,5 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 public interface IIncomingMessageQueue
 {
     void Push( string message );
-    event Action<OperationDto> MessageAvailable;
+    event Action<string> MessageAvailable;
 }

@@ -12,5 +12,6 @@ public enum OperationEnum
     ExitExclusiveListLock,
     ExitSharedListLock,
     ExitExclusiveLock,
-    ExitSharedLock
+    ExitSharedLock,
+    Ack
 }

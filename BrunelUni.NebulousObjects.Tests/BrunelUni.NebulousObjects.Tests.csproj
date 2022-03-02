@@ -17,6 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BrunelUni.NebulousObjects.Collections\BrunelUni.NebulousObjects.Collections.csproj" />
+      <ProjectReference Include="..\BrunelUni.NebulousObjects.Web\BrunelUni.NebulousObjects.Web.csproj"/>
     </ItemGroup>
 
 </Project>

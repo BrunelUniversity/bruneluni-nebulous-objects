@@ -4,6 +4,6 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 public interface INebulousClient
 {
-    void UpdateData<T>( OperationDto operationDto );
+    event Action<OperationDto> MessageAvailable;
     void Send( OperationDto operationDto );
 }
