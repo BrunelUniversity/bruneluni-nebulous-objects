@@ -38,8 +38,10 @@ public class When_Person_Is_Updated : Given_A_NebulousList
         Received.InOrder( ( ) =>
         {
             MockNebulousManager.EnterItemExclusiveLock<Person>( 0 );
+            MockNebulousManager.Update( 0, Arg.Any<Person>( ) );
             MockNebulousManager.ExitItemExclusiveLock<Person>( 0 );
         } );
+        MockNebulousManager.Received( 1 ).Update( Arg.Any<int>( ), Arg.Any<Person>( ) );
         MockNebulousManager.Received( 1 ).EnterItemExclusiveLock<object>( Arg.Any<int>( ) );
         MockNebulousManager.Received( 1 ).ExitItemExclusiveLock<object>( Arg.Any<int>( ) );
     }

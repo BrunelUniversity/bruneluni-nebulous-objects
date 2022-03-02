@@ -7,6 +7,7 @@ namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 public class When_Item_Is_Added : Given_A_NebulousList
 {
     private string _addedName;
+    private Person _person;
 
     protected override Person [ ] StartingItems => new []
     {
@@ -23,10 +24,11 @@ public class When_Item_Is_Added : Given_A_NebulousList
     protected override void When( )
     {
         _addedName = "David";
-        SUT.Add( new Person
+        _person = new Person
         {
             Name = _addedName
-        } );
+        };
+        SUT.Add( _person );
     }
 
     [ Test ]
@@ -35,8 +37,10 @@ public class When_Item_Is_Added : Given_A_NebulousList
         Received.InOrder( ( ) =>
         {
             MockNebulousManager.EnterListExclusiveLock<Person>( );
+            MockNebulousManager.Create( _person );
             MockNebulousManager.ExitListExclusiveLock<Person>( );
         } );
+        MockNebulousManager.Received( 1 ).Create( Arg.Any<Person>( ) );
         MockNebulousManager.Received( 1 ).EnterListExclusiveLock<object>( );
         MockNebulousManager.Received( 1 ).ExitListExclusiveLock<object>( );
     }

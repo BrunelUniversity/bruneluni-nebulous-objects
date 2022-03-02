@@ -39,8 +39,10 @@ public class When_Person_Is_Removed : Given_A_NebulousList
         Received.InOrder( ( ) =>
         {
             MockNebulousManager.EnterListExclusiveLock<Person>( );
+            MockNebulousManager.Delete<Person>( 0 );
             MockNebulousManager.ExitListExclusiveLock<Person>( );
         } );
+        MockNebulousManager.Received( 1 ).Delete<Person>( Arg.Any<int>( ) );
         MockNebulousManager.Received( 1 ).EnterListExclusiveLock<object>( );
         MockNebulousManager.Received( 1 ).ExitListExclusiveLock<object>( );
     }

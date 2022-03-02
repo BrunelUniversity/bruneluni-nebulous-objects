@@ -25,6 +25,8 @@ public class NebulousList<T> : INebulousList<T> where T : class
                 case OperationEnum.Update:
                     _nebulousManager.ReplicateUpdate( dto.Index, dto.Data as T, this );
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException( $"{dto.Operation} is an illegal operation here" );
             }
         };
         _list = new SynchronizedCollection<T>( );
@@ -56,6 +58,7 @@ public class NebulousList<T> : INebulousList<T> where T : class
         try
         {
             _nebulousManager.EnterItemExclusiveLock<T>( IndexOf( first ) );
+            _nebulousManager.Update( index, replacement );
             _list[ index ] = replacement;
         }
         finally
@@ -69,6 +72,7 @@ public class NebulousList<T> : INebulousList<T> where T : class
     public void Add( T item )
     {
         _nebulousManager.EnterListExclusiveLock<T>( );
+        _nebulousManager.Create( item );
         _list.Add( item );
         _nebulousManager.ExitListExclusiveLock<T>( );
     }
@@ -119,6 +123,7 @@ public class NebulousList<T> : INebulousList<T> where T : class
     public void RemoveAt( int index )
     {
         _nebulousManager.EnterListExclusiveLock<T>( );
+        _nebulousManager.Delete<T>( index );
         _list.RemoveAt( index );
         _nebulousManager.ExitListExclusiveLock<T>( );
     }
