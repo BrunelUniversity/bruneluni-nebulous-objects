@@ -1,9 +1,10 @@
 ﻿using System.Collections;
+using BrunelUni.NebulousObjects.Core.Enums;
 using BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 namespace BrunelUni.NebulousObjects.Collections;
 
-public class NebulousList<T> : INebulousList<T>
+public class NebulousList<T> : INebulousList<T> where T : class
 {
     private readonly INebulousManager _nebulousManager;
     private readonly SynchronizedCollection<T> _list;
@@ -11,7 +12,21 @@ public class NebulousList<T> : INebulousList<T>
     public NebulousList( INebulousManager nebulousManager, params T[] items )
     {
         _nebulousManager = nebulousManager;
-        _nebulousManager.OperationAvailable += x => _nebulousManager.ReplicateChanges( x, this );
+        _nebulousManager.OperationAvailable += dto =>
+        {
+            switch( dto.Operation )
+            {
+                case OperationEnum.Create:
+                    _nebulousManager.ReplicateCreate( dto.Data as T, this );
+                    break;
+                case OperationEnum.Delete:
+                    _nebulousManager.ReplicateDelete( dto.Index, this );
+                    break;
+                case OperationEnum.Update:
+                    _nebulousManager.ReplicateUpdate( dto.Index, dto.Data as T, this );
+                    break;
+            }
+        };
         _list = new SynchronizedCollection<T>( );
         foreach( var item in items )
         {

@@ -32,5 +32,11 @@ public interface INebulousManager
 
     event Action<OperationDto> OperationAvailable;
     
-    void ReplicateChanges<T>( OperationDto operationDto, INebulousList<T> list );
+    void Delete<T>( int index );
+    void Update<T>( int index, T @object );
+    void Create<T>( T @object );
+    
+    void ReplicateDelete<T>( int index, INebulousList<T> list );
+    void ReplicateUpdate<T>( int index, T @object, INebulousList<T> list );
+    void ReplicateCreate<T>( T @object, INebulousList<T> list );
 }
