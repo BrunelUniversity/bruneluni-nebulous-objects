@@ -27,7 +27,7 @@ public class When_Exit_Lock_Occurs : Given_A_NebulousClient
         MockMessageService.CurrentTransactionID.Returns( new Guid( GuidString ) );
         SUT.Send( new OperationDto
         {
-            Operation = OperationEnum.EnterExclusiveListLock
+            Operation = _operationEnum
         } );
     }
 

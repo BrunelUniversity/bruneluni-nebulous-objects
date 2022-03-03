@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
+using BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -14,7 +15,8 @@ public class When_Delete_Occurs : Given_A_NebulousClient
         SUT.Send( new OperationDto
         {
             Operation = OperationEnum.Delete,
-            Index = 1
+            Index = 1,
+            DataType = typeof( Person )
         } );
     }
 

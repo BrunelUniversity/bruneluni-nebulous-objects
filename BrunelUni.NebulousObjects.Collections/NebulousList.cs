@@ -135,7 +135,8 @@ public class NebulousList<T> : INebulousList<T> where T : class
             _nebulousClient.Send( new OperationDto
             {
                 Operation = OperationEnum.Delete,
-                Index = index
+                Index = index,
+                DataType = typeof( T )
             } );
             _list.RemoveAt( index );
             _nebulousClient.Send( new OperationDto

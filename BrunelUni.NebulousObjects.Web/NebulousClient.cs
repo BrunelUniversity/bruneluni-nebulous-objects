@@ -19,34 +19,59 @@ public class NebulousClient : INebulousClient
     {
         switch( operationDto.Operation )
         {
+            case OperationEnum.EnterExclusiveLock:
+            case OperationEnum.EnterExclusiveListLock:
+            case OperationEnum.EnterSharedLock:
+                _messageService.CurrentTransactionID = Guid.NewGuid( );
+                break;
+            case OperationEnum.ExitExclusiveLock:
+            case OperationEnum.ExitSharedLock:
+            case OperationEnum.ExitExclusiveListLock:
+                _messageService.AddOutgoing( new [ ]
+                {
+                    ( byte )operationDto.Operation
+                }.Concat( _messageService.CurrentTransactionID.Value.ToByteArray( ) ).ToArray( ) );
+                _messageService.CurrentTransactionID = null;
+                break;
+            case OperationEnum.Delete:
+                var allBytesUpdate = new List<byte>( );
+                var typeUpdate = operationDto.DataType;
+                allBytesUpdate.Add( ( byte )operationDto.Operation );
+                var indexBytesUpdate = BitConverter.GetBytes( operationDto.Index );
+                allBytesUpdate.AddRange( indexBytesUpdate.Take( 2 ) );
+                var bytesUpdate = new byte[ 16 ];
+                Encoding.UTF8.GetBytes( typeUpdate.Name, bytesUpdate );
+                allBytesUpdate.AddRange( bytesUpdate );
+                _messageService.AddOutgoing( allBytesUpdate.ToArray( ) );
+                break;
             case OperationEnum.Create:
             case OperationEnum.Update:
+                var allBytes = new List<byte>( );
                 var type = operationDto.Data.GetType( );
                 var props = type.GetProperties( );
-                var propBytes = new List<byte>( );
-                propBytes.Add( ( byte )operationDto.Operation );
+                allBytes.Add( ( byte )operationDto.Operation );
                 var indexBytes = BitConverter.GetBytes( operationDto.Index );
-                propBytes.AddRange( indexBytes.Take( 2 ) );
+                allBytes.AddRange( indexBytes.Take( 2 ) );
                 var bytes = new byte[ 16 ];
                 Encoding.UTF8.GetBytes( type.Name, bytes );
-                propBytes.AddRange( bytes );
+                allBytes.AddRange( bytes );
                 foreach( var prop in props )
                 {
                     var propertyType = prop.PropertyType;
                     if( propertyType == typeof( Guid ) )
                     {
-                        propBytes.AddRange( ( ( Guid )prop.GetValue( operationDto.Data ) ).ToByteArray( ) );
+                        allBytes.AddRange( ( ( Guid )prop.GetValue( operationDto.Data ) ).ToByteArray( ) );
                     }
                     else if( propertyType == typeof( string ) )
                     {
                         var stringLength = prop.GetCustomAttribute<MaxLengthAttribute>( ).Length;
                         var bytesString = new byte[ stringLength ];
                         Encoding.UTF8.GetBytes( ( string )prop.GetValue( operationDto.Data ), bytesString );
-                        propBytes.AddRange( bytesString );
+                        allBytes.AddRange( bytesString );
                     }
                 }
 
-                _messageService.AddOutgoing( propBytes.ToArray( ) );
+                _messageService.AddOutgoing( allBytes.ToArray( ) );
                 break;
             default:
                 throw new ArgumentException( "enum value invalid" );
