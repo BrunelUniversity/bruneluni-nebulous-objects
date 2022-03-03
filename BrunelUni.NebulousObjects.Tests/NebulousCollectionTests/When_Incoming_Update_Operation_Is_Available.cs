@@ -34,7 +34,7 @@ public class When_Incoming_Update_Operation_Is_Available : Given_A_NebulousList
     }
 
     [ Test ]
-    public void Then_Replication_Is_Acknowledged( ) { MockNebulousClient.Received( 1 ).Ack( ); }
+    public void Then_Replication_Is_Acknowledged( ) { MockNebulousClient.Received( 1 ).AckReplication( ); }
 
     [ Test ]
     public void Then_Data_Is_Updated( )

@@ -31,5 +31,5 @@ public class When_Incoming_Create_Operation_Is_Available : Given_A_NebulousList
     public void Then_Data_Is_Added( ) { Assert.True( SUT[ 0 ].NebulousEquals( _person ) ); }
 
     [ Test ]
-    public void Then_Replication_Is_Acknowledged( ) { MockNebulousClient.Received( 1 ).Ack( ); }
+    public void Then_Replication_Is_Acknowledged( ) { MockNebulousClient.Received( 1 ).AckReplication( ); }
 }

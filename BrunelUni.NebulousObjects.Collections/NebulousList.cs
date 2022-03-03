@@ -25,15 +25,15 @@ public class NebulousList<T> : INebulousList<T> where T : class
                 {
                     case OperationEnum.Create:
                         _list.Add( dto.Data as T );
-                        _nebulousClient.Ack( );
+                        _nebulousClient.AckReplication( );
                         break;
                     case OperationEnum.Delete:
                         _list.RemoveAt( dto.Index );
-                        _nebulousClient.Ack( );
+                        _nebulousClient.AckReplication( );
                         break;
                     case OperationEnum.Update:
                         _list[ dto.Index ] = ( dto.Data as T ).Clone( );
-                        _nebulousClient.Ack( );
+                        _nebulousClient.AckReplication( );
                         break;
                     default:
                         throw new ArgumentOutOfRangeException( $"{dto.Operation} is an illegal operation here" );

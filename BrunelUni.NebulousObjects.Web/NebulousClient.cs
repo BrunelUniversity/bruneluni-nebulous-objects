@@ -17,6 +17,7 @@ public class NebulousClient : INebulousClient
 
     public void Send( OperationDto operationDto )
     {
+        var allBytes = new List<byte>( );
         switch( operationDto.Operation )
         {
             case OperationEnum.EnterExclusiveLock:
@@ -27,26 +28,21 @@ public class NebulousClient : INebulousClient
             case OperationEnum.ExitExclusiveLock:
             case OperationEnum.ExitSharedLock:
             case OperationEnum.ExitExclusiveListLock:
-                _messageService.AddOutgoing( new [ ]
-                {
-                    ( byte )operationDto.Operation
-                }.Concat( _messageService.CurrentTransactionID.Value.ToByteArray( ) ).ToArray( ) );
+                allBytes.Add( ( byte )operationDto.Operation );
+                allBytes.AddRange( _messageService.CurrentTransactionID.Value.ToByteArray( ) );
                 _messageService.CurrentTransactionID = null;
                 break;
             case OperationEnum.Delete:
-                var allBytesUpdate = new List<byte>( );
                 var typeUpdate = operationDto.DataType;
-                allBytesUpdate.Add( ( byte )operationDto.Operation );
+                allBytes.Add( ( byte )operationDto.Operation );
                 var indexBytesUpdate = BitConverter.GetBytes( operationDto.Index );
-                allBytesUpdate.AddRange( indexBytesUpdate.Take( 2 ) );
+                allBytes.AddRange( indexBytesUpdate.Take( 2 ) );
                 var bytesUpdate = new byte[ 16 ];
                 Encoding.UTF8.GetBytes( typeUpdate.Name, bytesUpdate );
-                allBytesUpdate.AddRange( bytesUpdate );
-                _messageService.AddOutgoing( allBytesUpdate.ToArray( ) );
+                allBytes.AddRange( bytesUpdate );
                 break;
             case OperationEnum.Create:
             case OperationEnum.Update:
-                var allBytes = new List<byte>( );
                 var type = operationDto.Data.GetType( );
                 var props = type.GetProperties( );
                 allBytes.Add( ( byte )operationDto.Operation );
@@ -71,12 +67,25 @@ public class NebulousClient : INebulousClient
                     }
                 }
 
-                _messageService.AddOutgoing( allBytes.ToArray( ) );
                 break;
             default:
                 throw new ArgumentException( "enum value invalid" );
         }
+
+        _messageService.AddOutgoing( allBytes.ToArray( ) );
+        var response = _messageService.GetOutgoingResponse( );
+        HandleResponse( response, ( ) =>
+        {
+            _messageService.AddOutgoing( allBytes.ToArray( ) );
+            var secondResponse = _messageService.GetOutgoingResponse( );
+            HandleResponse( secondResponse, ( ) => throw new Exception( "response was not acknowledged" ) );
+        } );
     }
 
-    public void Ack( ) { throw new NotImplementedException( ); }
+    public void AckReplication( ) { throw new NotImplementedException( ); }
+
+    private void HandleResponse( byte [ ] response, Action handler )
+    {
+        if( ( OperationEnum )response[ 0 ] != OperationEnum.Ack ) handler( );
+    }
 }
