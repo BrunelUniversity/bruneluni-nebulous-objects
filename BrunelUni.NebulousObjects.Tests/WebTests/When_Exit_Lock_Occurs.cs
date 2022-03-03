@@ -2,21 +2,20 @@
 using System.Linq;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
-using BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 using NSubstitute;
 using NUnit.Framework;
 
 namespace BrunelUni.NebulousObjects.Tests.WebTests;
 
-[ TestFixture( OperationEnum.Create, ( byte )0x00 ) ]
-[ TestFixture( OperationEnum.Update, ( byte )0x01 ) ]
-public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
+[ TestFixture( OperationEnum.ExitExclusiveLock, ( byte )0x07 ) ]
+[ TestFixture( OperationEnum.ExitSharedLock, ( byte )0x08 ) ]
+[ TestFixture( OperationEnum.ExitExclusiveListLock, ( byte )0x06 ) ]
+public class When_Exit_Lock_Occurs : Given_A_NebulousClient
 {
     private readonly OperationEnum _operationEnum;
     private readonly byte _operationByte;
-    private Person _person;
 
-    public When_Create_Or_Update_Occurs( OperationEnum operationEnum, byte operationByte )
+    public When_Exit_Lock_Occurs( OperationEnum operationEnum, byte operationByte )
     {
         _operationEnum = operationEnum;
         _operationByte = operationByte;
@@ -25,19 +24,19 @@ public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
     protected override void When( )
     {
         MockMessageService.GetOutgoingResponse( ).Returns( AckBytes );
-        _person = new Person
-        {
-            Id = new Guid( GuidString ),
-            Name = "James"
-        };
+        MockMessageService.CurrentTransactionID.Returns( new Guid( GuidString ) );
         SUT.Send( new OperationDto
         {
-            Operation = _operationEnum,
-            Data = _person,
-            Index = 1
+            Operation = OperationEnum.EnterExclusiveListLock
         } );
     }
 
+    [ Test ]
+    public void Then_New_Transaction_Id_Is_Cleared_Once( )
+    {
+        MockMessageService.Received( 1 ).CurrentTransactionID = Arg.Any<Guid?>( );
+        MockMessageService.Received( ).CurrentTransactionID = null;
+    }
 
     [ Test ]
     public void Then_Message_Is_Sent( )
@@ -46,19 +45,8 @@ public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
         {
             _operationByte
         };
-        var indexBytes = new byte [ ]
-        {
-            0x01, 0x00
-        };
-        var nameBytes = new byte [ ]
-        {
-            0x4A, 0x61, 0x6D, 0x65, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-        };
         var bytes = operationBytes
-            .Concat( indexBytes )
-            .Concat( ObjectBytes )
             .Concat( GuidBytes )
-            .Concat( nameBytes )
             .ToArray( );
         MockMessageService.Received( 1 ).AddOutgoing( Arg.Any<byte [ ]>( ) );
         MockMessageService.Received( ).AddOutgoing( Arg.Is<byte [ ]>( b => b.SequenceEqual( bytes ) ) );

@@ -7,9 +7,9 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 public interface IMessageService
 {
     public bool CurrentAck { get; set; }
-    public Guid CurrentTransactionID { get; set; }
+    public Guid? CurrentTransactionID { get; set; }
     void AddOutgoing( byte [ ] messageParts );
-    string GetOutgoingResponse( );
-    string AddIncomingResponse( byte [ ] messageParts );
+    byte [ ] GetOutgoingResponse( );
+    byte [ ] AddIncomingResponse( byte [ ] messageParts );
     void GetIncoming( byte [ ] messageParts );
 }
