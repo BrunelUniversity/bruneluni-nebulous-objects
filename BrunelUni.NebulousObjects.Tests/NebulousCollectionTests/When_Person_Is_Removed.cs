@@ -40,12 +40,14 @@ public class When_Person_Is_Removed : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveListLock ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterExclusiveListLock ) );
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.Delete && o.Index == 0 && o.DataType == typeof( Person ) ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveListLock ) );
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitExclusiveListLock ) );
         } );
-        MockNebulousClient.Received( 7 ).Send( Arg.Any<OperationDto>( ) );
+        MockNebulousObjectManager.Received( 7 ).Send( Arg.Any<OperationDto>( ) );
     }
 
     [ Test ]

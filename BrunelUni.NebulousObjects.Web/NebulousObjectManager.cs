@@ -7,11 +7,11 @@ using BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 namespace BrunelUni.NebulousObjects.Web;
 
-public class NebulousClient : INebulousClient
+public class NebulousObjectManager : INebulousObjectManager
 {
     private readonly IMessageService _messageService;
 
-    public NebulousClient( IMessageService messageService ) { _messageService = messageService; }
+    public NebulousObjectManager( IMessageService messageService ) { _messageService = messageService; }
 
     public event Action<OperationDto> MessageAvailable;
 
@@ -73,19 +73,7 @@ public class NebulousClient : INebulousClient
         }
 
         _messageService.AddOutgoing( allBytes.ToArray( ) );
-        var response = _messageService.GetOutgoingResponse( );
-        HandleResponse( response, ( ) =>
-        {
-            _messageService.AddOutgoing( allBytes.ToArray( ) );
-            var secondResponse = _messageService.GetOutgoingResponse( );
-            HandleResponse( secondResponse, ( ) => throw new Exception( "response was not acknowledged" ) );
-        } );
     }
 
     public void AckReplication( ) { throw new NotImplementedException( ); }
-
-    private void HandleResponse( byte [ ] response, Action handler )
-    {
-        if( ( OperationEnum )response[ 0 ] != OperationEnum.Ack ) handler( );
-    }
 }

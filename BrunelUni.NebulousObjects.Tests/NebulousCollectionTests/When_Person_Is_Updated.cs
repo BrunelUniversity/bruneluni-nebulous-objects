@@ -42,11 +42,13 @@ public class When_Person_Is_Updated : Given_A_NebulousList
         newItem.Name = "Peter";
         Received.InOrder( ( ) =>
         {
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveLock ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send(
+                Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveLock ) );
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.Update && o.Data.NebulousEquals( newItem ) && o.Index == 0 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveLock ) );
+            MockNebulousObjectManager.Send(
+                Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveLock ) );
         } );
-        MockNebulousClient.Received( 14 ).Send( Arg.Any<OperationDto>( ) );
+        MockNebulousObjectManager.Received( 14 ).Send( Arg.Any<OperationDto>( ) );
     }
 }

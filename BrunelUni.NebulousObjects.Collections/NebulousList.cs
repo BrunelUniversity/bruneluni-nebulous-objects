@@ -10,14 +10,14 @@ namespace BrunelUni.NebulousObjects.Collections;
 public class NebulousList<T> : INebulousList<T> where T : class
 {
     private readonly SynchronizedCollection<T> _list;
-    private readonly INebulousClient _nebulousClient;
+    private readonly INebulousObjectManager _nebulousObjectManager;
     private readonly object _nessMonster;
 
-    public NebulousList( INebulousClient nebulousClient, params T [ ] items )
+    public NebulousList( INebulousObjectManager nebulousObjectManager, params T [ ] items )
     {
-        _nebulousClient = nebulousClient;
+        _nebulousObjectManager = nebulousObjectManager;
         _nessMonster = new object( );
-        _nebulousClient.MessageAvailable += dto =>
+        _nebulousObjectManager.MessageAvailable += dto =>
         {
             lock( _nessMonster )
             {
@@ -25,15 +25,12 @@ public class NebulousList<T> : INebulousList<T> where T : class
                 {
                     case OperationEnum.Create:
                         _list.Add( dto.Data as T );
-                        _nebulousClient.AckReplication( );
                         break;
                     case OperationEnum.Delete:
                         _list.RemoveAt( dto.Index );
-                        _nebulousClient.AckReplication( );
                         break;
                     case OperationEnum.Update:
                         _list[ dto.Index ] = ( dto.Data as T ).Clone( );
-                        _nebulousClient.AckReplication( );
                         break;
                     default:
                         throw new ArgumentOutOfRangeException( $"{dto.Operation} is an illegal operation here" );
@@ -54,13 +51,13 @@ public class NebulousList<T> : INebulousList<T> where T : class
             lock( _nessMonster )
             {
                 var item = _list[ index ];
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.EnterSharedLock
                 } );
                 items.Add( item.Clone( ) );
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.ExitSharedLock
@@ -79,12 +76,12 @@ public class NebulousList<T> : INebulousList<T> where T : class
         {
             try
             {
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.EnterExclusiveLock
                 } );
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.Update,
@@ -94,7 +91,7 @@ public class NebulousList<T> : INebulousList<T> where T : class
             }
             finally
             {
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.ExitExclusiveLock
@@ -107,17 +104,17 @@ public class NebulousList<T> : INebulousList<T> where T : class
     {
         lock( _nessMonster )
         {
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.EnterExclusiveListLock
             } );
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.Create,
                 Data = item
             } );
             _list.Add( item );
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.ExitExclusiveListLock
             } );
@@ -128,18 +125,18 @@ public class NebulousList<T> : INebulousList<T> where T : class
     {
         lock( _nessMonster )
         {
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.EnterExclusiveListLock
             } );
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.Delete,
                 Index = index,
                 DataType = typeof( T )
             } );
             _list.RemoveAt( index );
-            _nebulousClient.Send( new OperationDto
+            _nebulousObjectManager.Send( new OperationDto
             {
                 Operation = OperationEnum.ExitExclusiveListLock
             } );
@@ -152,13 +149,13 @@ public class NebulousList<T> : INebulousList<T> where T : class
         {
             lock( _nessMonster )
             {
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.EnterSharedLock
                 } );
                 var item = _list[ index ].Clone( );
-                _nebulousClient.Send( new OperationDto
+                _nebulousObjectManager.Send( new OperationDto
                 {
                     Index = index,
                     Operation = OperationEnum.ExitSharedLock

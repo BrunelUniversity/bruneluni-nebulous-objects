@@ -1,10 +1,12 @@
 ﻿using Aidan.Common.Core.Attributes;
 using Aidan.Common.Core.Enum;
+using BrunelUni.NebulousObjects.Core.Dtos;
 
 namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 [ Service( Scope = ServiceLifetimeEnum.Singleton ) ]
-public interface INebulousList<T> : IList<T>
+public interface INebulousObjectManager
 {
-    void ReplaceFirstOccurance( Func<T, bool> predicate, T replacement );
+    event Action<OperationDto> MessageAvailable;
+    void Send( OperationDto operationDto );
 }

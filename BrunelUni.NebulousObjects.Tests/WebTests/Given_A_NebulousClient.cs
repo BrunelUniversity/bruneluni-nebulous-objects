@@ -5,7 +5,7 @@ using NSubstitute;
 
 namespace BrunelUni.NebulousObjects.Tests.WebTests;
 
-public class Given_A_NebulousClient : GivenWhenThen<INebulousClient>
+public class Given_A_NebulousClient : GivenWhenThen<INebulousObjectManager>
 {
     protected const string GuidString = "22a1471e-c2d5-4e50-9497-a4ab25321dea";
 
@@ -26,6 +26,6 @@ public class Given_A_NebulousClient : GivenWhenThen<INebulousClient>
     protected override void Given( )
     {
         MockMessageService = Substitute.For<IMessageService>( );
-        SUT = new NebulousClient( MockMessageService );
+        SUT = new NebulousObjectManager( MockMessageService );
     }
 }

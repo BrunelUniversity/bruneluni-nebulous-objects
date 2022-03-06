@@ -30,11 +30,9 @@ public class When_Incoming_Update_Operation_Is_Available : Given_A_NebulousList
             Operation = OperationEnum.Update,
             Data = _person
         };
-        MockNebulousClient.MessageAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
+        MockNebulousObjectManager.MessageAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
     }
 
-    [ Test ]
-    public void Then_Replication_Is_Acknowledged( ) { MockNebulousClient.Received( 1 ).AckReplication( ); }
 
     [ Test ]
     public void Then_Data_Is_Updated( )

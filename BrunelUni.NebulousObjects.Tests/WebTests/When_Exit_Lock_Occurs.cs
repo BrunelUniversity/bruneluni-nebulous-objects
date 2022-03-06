@@ -23,7 +23,6 @@ public class When_Exit_Lock_Occurs : Given_A_NebulousClient
 
     protected override void When( )
     {
-        MockMessageService.GetOutgoingResponse( ).Returns( AckBytes );
         MockMessageService.CurrentTransactionID.Returns( new Guid( GuidString ) );
         SUT.Send( new OperationDto
         {

@@ -61,19 +61,19 @@ public class When_Item_Is_Read_By_Id : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.EnterSharedLock && o.Index == 0 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.ExitSharedLock && o.Index == 0 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.EnterSharedLock && o.Index == 1 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.ExitSharedLock && o.Index == 1 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.EnterSharedLock && o.Index == 2 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.ExitSharedLock && o.Index == 2 ) );
         } );
-        MockNebulousClient.Received( 6 ).Send( Arg.Any<OperationDto>( ) );
+        MockNebulousObjectManager.Received( 6 ).Send( Arg.Any<OperationDto>( ) );
     }
 }

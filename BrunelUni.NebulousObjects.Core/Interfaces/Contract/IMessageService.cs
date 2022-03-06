@@ -6,10 +6,7 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 [ Service( Scope = ServiceLifetimeEnum.Singleton ) ]
 public interface IMessageService
 {
-    public bool CurrentAck { get; set; }
     public Guid? CurrentTransactionID { get; set; }
     void AddOutgoing( byte [ ] messageParts );
-    byte [ ] GetOutgoingResponse( );
-    byte [ ] AddIncomingResponse( byte [ ] messageParts );
-    void GetIncoming( byte [ ] messageParts );
+    event Action<byte [ ]> MessageAvailable;
 }

@@ -39,12 +39,14 @@ public class When_Item_Is_Added : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.EnterExclusiveListLock ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.EnterExclusiveListLock ) );
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.Create && o.Data.NebulousEquals( _person ) ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o => o.Operation == OperationEnum.ExitExclusiveListLock ) );
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
+                o.Operation == OperationEnum.ExitExclusiveListLock ) );
         } );
-        MockNebulousClient.Received( 3 ).Send( Arg.Any<OperationDto>( ) );
+        MockNebulousObjectManager.Received( 3 ).Send( Arg.Any<OperationDto>( ) );
     }
 
     [ Test ]

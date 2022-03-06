@@ -33,11 +33,11 @@ public class When_List_Is_Indexed : Given_A_NebulousList
     {
         Received.InOrder( ( ) =>
         {
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.EnterSharedLock && o.Index == 0 ) );
-            MockNebulousClient.Send( Arg.Is<OperationDto>( o =>
+            MockNebulousObjectManager.Send( Arg.Is<OperationDto>( o =>
                 o.Operation == OperationEnum.ExitSharedLock && o.Index == 0 ) );
         } );
-        MockNebulousClient.Received( 2 ).Send( Arg.Any<OperationDto>( ) );
+        MockNebulousObjectManager.Received( 2 ).Send( Arg.Any<OperationDto>( ) );
     }
 }

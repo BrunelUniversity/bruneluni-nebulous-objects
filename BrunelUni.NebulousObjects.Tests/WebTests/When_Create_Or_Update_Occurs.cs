@@ -24,7 +24,6 @@ public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
 
     protected override void When( )
     {
-        MockMessageService.GetOutgoingResponse( ).Returns( AckBytes );
         _person = new Person
         {
             Id = new Guid( GuidString ),

@@ -12,6 +12,6 @@ public class When_Constructed : Given_A_NebulousList
     [ Test ]
     public void Then_Operation_Available_Event_Is_Subscribed_To( )
     {
-        MockNebulousClient.Received( 1 ).MessageAvailable += Arg.Any<Action<OperationDto>>( );
+        MockNebulousObjectManager.Received( 1 ).MessageAvailable += Arg.Any<Action<OperationDto>>( );
     }
 }

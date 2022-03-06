@@ -11,7 +11,6 @@ public class When_Delete_Occurs : Given_A_NebulousClient
 {
     protected override void When( )
     {
-        MockMessageService.GetOutgoingResponse( ).Returns( AckBytes );
         SUT.Send( new OperationDto
         {
             Operation = OperationEnum.Delete,
