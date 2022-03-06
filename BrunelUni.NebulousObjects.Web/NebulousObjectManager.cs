@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
+using Aidan.Common.Core.Interfaces.Contract;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
 using BrunelUni.NebulousObjects.Core.Interfaces.Contract;
@@ -9,11 +10,25 @@ namespace BrunelUni.NebulousObjects.Web;
 
 public class NebulousObjectManager : INebulousObjectManager
 {
+    private readonly IConfigurationAdapter _configurationAdapter;
     private readonly IMessageService _messageService;
 
-    public NebulousObjectManager( IMessageService messageService ) { _messageService = messageService; }
+    public NebulousObjectManager( IMessageService messageService,
+        IConfigurationAdapter configurationAdapter )
+    {
+        _messageService = messageService;
+        _configurationAdapter = configurationAdapter;
+        var modelNamespace = _configurationAdapter.Get<AppOptions>( ).ModelNamespace;
+        var foo = "";
+        var models = AppDomain.CurrentDomain.GetAssemblies( )
+            .SelectMany( x => x.GetTypes( ) )
+            .Where( x => x.Namespace == modelNamespace );
+        Models = new Dictionary<string, Type>( models.Select( x => new KeyValuePair<string, Type>( x.Name, x ) )
+            .ToArray( ) );
+        _messageService.MessageAvailable += OnMessageAvailable;
+    }
 
-    public event Action<OperationDto> MessageAvailable;
+    public event Action<OperationDto> OperationAvailable;
 
     public void Send( OperationDto operationDto )
     {
@@ -73,6 +88,37 @@ public class NebulousObjectManager : INebulousObjectManager
         }
 
         _messageService.AddOutgoing( allBytes.ToArray( ) );
+    }
+
+    public Dictionary<string, Type> Models { get; }
+
+    private void OnMessageAvailable( byte [ ] obj )
+    {
+        switch( obj[ 0 ] )
+        {
+            case 0x02:
+                foreach( var model in Models )
+                {
+                    var bytes = new byte[ 16 ];
+                    Encoding.UTF8.GetBytes( model.Value.Name, bytes );
+                    var objectName = obj.Skip( 3 ).Take( 16 ).ToArray( );
+                    if( bytes.SequenceEqual( objectName ) )
+                    {
+                        var index = ( int )BitConverter.ToInt16( obj.Skip( 1 ).Take( 2 ).ToArray( ) );
+                        OperationAvailable.Invoke( new OperationDto
+                        {
+                            Operation = OperationEnum.Delete,
+                            DataType = model.Value,
+                            Index = index
+                        } );
+                        return;
+                    }
+                }
+
+                throw new ArgumentException( "model does not exist" );
+            default:
+                throw new ArgumentException( "invalid operation" );
+        }
     }
 
     public void AckReplication( ) { throw new NotImplementedException( ); }

@@ -3,7 +3,6 @@ using System.Linq;
 using BrunelUni.NebulousObjects.Collections;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
-using BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -15,11 +14,11 @@ public class When_Incoming_Message_Is_A_Delete : Given_A_NebulousClient
 
     protected override void When( )
     {
+        SUT.OperationAvailable += dto => _proccessedOperation = dto;
         MockMessageService.MessageAvailable += Raise.Event<Action<byte [ ]>>( new byte [ ]
         {
             0x02, 0x01, 0x00
-        }.Concat( ObjectBytes ) );
-        SUT.MessageAvailable += dto => _proccessedOperation = dto;
+        }.Concat( ObjectBytes ).ToArray( ) );
     }
 
     [ Test ]

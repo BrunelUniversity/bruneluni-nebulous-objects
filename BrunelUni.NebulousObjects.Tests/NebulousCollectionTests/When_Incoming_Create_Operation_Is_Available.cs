@@ -24,7 +24,7 @@ public class When_Incoming_Create_Operation_Is_Available : Given_A_NebulousList
             Operation = OperationEnum.Create,
             Data = _person
         };
-        MockNebulousObjectManager.MessageAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
+        MockNebulousObjectManager.OperationAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
     }
 
     [ Test ]

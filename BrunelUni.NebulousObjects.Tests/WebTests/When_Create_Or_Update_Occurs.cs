@@ -2,7 +2,6 @@
 using System.Linq;
 using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Enums;
-using BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
 using NSubstitute;
 using NUnit.Framework;
 

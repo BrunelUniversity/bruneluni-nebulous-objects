@@ -17,7 +17,7 @@ public class NebulousList<T> : INebulousList<T> where T : class
     {
         _nebulousObjectManager = nebulousObjectManager;
         _nessMonster = new object( );
-        _nebulousObjectManager.MessageAvailable += dto =>
+        _nebulousObjectManager.OperationAvailable += dto =>
         {
             lock( _nessMonster )
             {

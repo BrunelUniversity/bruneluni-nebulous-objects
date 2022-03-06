@@ -23,7 +23,7 @@ public class When_Incoming_Delete_Operation_Is_Available : Given_A_NebulousList
             Operation = OperationEnum.Delete,
             Index = 1
         };
-        MockNebulousObjectManager.MessageAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
+        MockNebulousObjectManager.OperationAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
     }
 
     [ Test ]

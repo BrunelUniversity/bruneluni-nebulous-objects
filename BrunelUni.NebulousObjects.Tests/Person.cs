@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace BrunelUni.NebulousObjects.Tests.NebulousCollectionTests;
+namespace BrunelUni.NebulousObjects.Tests;
 
 [ Serializable ]
 public class Person

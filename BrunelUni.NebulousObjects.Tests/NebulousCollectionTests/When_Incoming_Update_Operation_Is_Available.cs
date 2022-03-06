@@ -30,7 +30,7 @@ public class When_Incoming_Update_Operation_Is_Available : Given_A_NebulousList
             Operation = OperationEnum.Update,
             Data = _person
         };
-        MockNebulousObjectManager.MessageAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
+        MockNebulousObjectManager.OperationAvailable += Raise.Event<Action<OperationDto>>( _operationDto );
     }
 
 

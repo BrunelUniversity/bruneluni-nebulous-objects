@@ -1,4 +1,6 @@
-﻿using Aidan.Common.Utils.Test;
+﻿using Aidan.Common.Core.Interfaces.Contract;
+using Aidan.Common.Utils.Test;
+using BrunelUni.NebulousObjects.Core.Dtos;
 using BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 using BrunelUni.NebulousObjects.Web;
 using NSubstitute;
@@ -21,11 +23,18 @@ public class Given_A_NebulousClient : GivenWhenThen<INebulousObjectManager>
         0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
 
+    protected IConfigurationAdapter MockConfigurationAdapter;
+
     protected IMessageService MockMessageService;
 
     protected override void Given( )
     {
         MockMessageService = Substitute.For<IMessageService>( );
-        SUT = new NebulousObjectManager( MockMessageService );
+        MockConfigurationAdapter = Substitute.For<IConfigurationAdapter>( );
+        MockConfigurationAdapter.Get<AppOptions>( ).Returns( new AppOptions
+        {
+            ModelNamespace = "BrunelUni.NebulousObjects.Tests"
+        } );
+        SUT = new NebulousObjectManager( MockMessageService, MockConfigurationAdapter );
     }
 }

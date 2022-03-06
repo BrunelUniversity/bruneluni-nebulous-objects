@@ -7,6 +7,7 @@ namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 [ Service( Scope = ServiceLifetimeEnum.Singleton ) ]
 public interface INebulousObjectManager
 {
-    event Action<OperationDto> MessageAvailable;
+    public Dictionary<string, Type> Models { get; }
+    event Action<OperationDto> OperationAvailable;
     void Send( OperationDto operationDto );
 }
