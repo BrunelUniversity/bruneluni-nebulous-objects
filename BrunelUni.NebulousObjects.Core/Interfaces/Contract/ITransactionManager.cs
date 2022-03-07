@@ -5,9 +5,8 @@ using BrunelUni.NebulousObjects.Core.Dtos;
 namespace BrunelUni.NebulousObjects.Core.Interfaces.Contract;
 
 [ Service( Scope = ServiceLifetimeEnum.Singleton ) ]
-public interface INebulousObjectManager
+public interface ITransactionManager
 {
-    public IReadOnlyDictionary<string, Type> Models { get; }
-    event Action<OperationDto> OperationAvailable;
-    void Send( OperationDto operationDto );
+    public TransactionDto GetTransactionBeingProccessed { get; }
+    event Action<TransactionDto> NewTransactionToBeProcessed;
 }

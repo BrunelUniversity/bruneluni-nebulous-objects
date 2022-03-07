@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
 using Aidan.Common.Core.Interfaces.Contract;
@@ -23,12 +24,15 @@ public class NebulousObjectManager : INebulousObjectManager
         var models = AppDomain.CurrentDomain.GetAssemblies( )
             .SelectMany( x => x.GetTypes( ) )
             .Where( x => x.Namespace == modelNamespace );
-        Models = new Dictionary<string, Type>( models.Select( x => new KeyValuePair<string, Type>( x.Name, x ) )
-            .ToArray( ) );
+        Models = new ReadOnlyDictionary<string, Type>( new Dictionary<string, Type>( models
+            .Select( x => new KeyValuePair<string, Type>( x.Name, x ) )
+            .ToArray( ) ) );
         _messageService.MessageAvailable += OnMessageAvailable;
     }
 
     public event Action<OperationDto> OperationAvailable;
+    public IReadOnlyDictionary<string, Type> Models { get; }
+
 
     public void Send( OperationDto operationDto )
     {
@@ -89,8 +93,6 @@ public class NebulousObjectManager : INebulousObjectManager
 
         _messageService.AddOutgoing( allBytes.ToArray( ) );
     }
-
-    public Dictionary<string, Type> Models { get; }
 
     private void OnMessageAvailable( byte [ ] obj )
     {

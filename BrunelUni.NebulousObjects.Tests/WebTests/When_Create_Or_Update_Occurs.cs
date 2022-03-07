@@ -25,7 +25,7 @@ public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
     {
         _person = new Person
         {
-            Id = new Guid( GuidString ),
+            Id = new Guid( TestHelpers.GuidString ),
             Name = "James"
         };
         SUT.Send( new OperationDto
@@ -54,8 +54,8 @@ public class When_Create_Or_Update_Occurs : Given_A_NebulousClient
         };
         var bytes = operationBytes
             .Concat( indexBytes )
-            .Concat( ObjectBytes )
-            .Concat( GuidBytes )
+            .Concat( TestHelpers.ObjectBytes )
+            .Concat( TestHelpers.GuidBytes )
             .Concat( nameBytes )
             .ToArray( );
         MockMessageService.Received( 1 ).AddOutgoing( Arg.Any<byte [ ]>( ) );

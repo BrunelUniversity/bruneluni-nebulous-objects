@@ -32,7 +32,7 @@ public class When_Delete_Occurs : Given_A_NebulousClient
         };
         var bytes = operationBytes
             .Concat( indexBytes )
-            .Concat( ObjectBytes )
+            .Concat( TestHelpers.ObjectBytes )
             .ToArray( );
         MockMessageService.Received( 1 ).AddOutgoing( Arg.Any<byte [ ]>( ) );
         MockMessageService.Received( ).AddOutgoing( Arg.Is<byte [ ]>( b => b.SequenceEqual( bytes ) ) );

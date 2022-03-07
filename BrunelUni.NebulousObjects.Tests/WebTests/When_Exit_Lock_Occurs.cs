@@ -23,7 +23,7 @@ public class When_Exit_Lock_Occurs : Given_A_NebulousClient
 
     protected override void When( )
     {
-        MockMessageService.CurrentTransactionID.Returns( new Guid( GuidString ) );
+        MockMessageService.CurrentTransactionID.Returns( new Guid( TestHelpers.GuidString ) );
         SUT.Send( new OperationDto
         {
             Operation = _operationEnum
@@ -45,7 +45,7 @@ public class When_Exit_Lock_Occurs : Given_A_NebulousClient
             _operationByte
         };
         var bytes = operationBytes
-            .Concat( GuidBytes )
+            .Concat( TestHelpers.GuidBytes )
             .ToArray( );
         MockMessageService.Received( 1 ).AddOutgoing( Arg.Any<byte [ ]>( ) );
         MockMessageService.Received( ).AddOutgoing( Arg.Is<byte [ ]>( b => b.SequenceEqual( bytes ) ) );

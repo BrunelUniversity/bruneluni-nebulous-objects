@@ -18,7 +18,7 @@ public class When_Incoming_Message_Is_A_Delete : Given_A_NebulousClient
         MockMessageService.MessageAvailable += Raise.Event<Action<byte [ ]>>( new byte [ ]
         {
             0x02, 0x01, 0x00
-        }.Concat( ObjectBytes ).ToArray( ) );
+        }.Concat( TestHelpers.ObjectBytes ).ToArray( ) );
     }
 
     [ Test ]
